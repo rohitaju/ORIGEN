@@ -17,12 +17,19 @@ import ClientDashboard from "./pages/dashboards/ClientDashboard";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ResetPasswordModal from "./components/ResetPasswordModal";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recoveryMode, setRecoveryMode] = useState(false);
 
   useEffect(() => {
+    // Check if URL has recovery token hash on exact mount
+    if (window.location.hash.includes('type=recovery')) {
+      setRecoveryMode(true);
+    }
+
     const fetchUser = async (session: any) => {
       if (!session) {
         setUser(null);
@@ -52,7 +59,10 @@ export default function App() {
     });
 
     // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setRecoveryMode(true);
+      }
       setLoading(true);
       fetchUser(session);
     });
@@ -76,6 +86,11 @@ export default function App() {
     <Router>
       <div className="min-h-screen bg-white font-sans text-slate-900">
         <Navbar user={user} onLogout={handleLogout} />
+        
+        {recoveryMode && (
+          <ResetPasswordModal onClose={() => setRecoveryMode(false)} />
+        )}
+        
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
