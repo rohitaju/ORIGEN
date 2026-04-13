@@ -68,11 +68,31 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-7xl px-8 py-12">
+      <main className="flex-1 overflow-y-auto pb-24 lg:pb-0">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           {children}
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-brand-surface/95 backdrop-blur-md border-t border-white/5">
+        <nav className="flex items-center justify-around px-2 py-3 overflow-x-auto gap-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex min-w-[72px] flex-col items-center justify-center gap-1 rounded-2xl p-2 transition-all ${
+                activeTab === tab.id
+                  ? "bg-brand-green/10 text-brand-green"
+                  : "text-white/40 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? "text-brand-green" : "text-white/40"}`} />
+              <span className="text-[8px] font-black uppercase tracking-widest">{tab.name}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
     </div>
   );
 }

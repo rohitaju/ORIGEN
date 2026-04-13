@@ -252,8 +252,8 @@ function StudentManagementSection() {
         </div>
       </header>
 
-      <div className="glass-card rounded-[40px] overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="glass-card rounded-[40px] overflow-x-auto overflow-y-hidden">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="border-b border-white/5 bg-white/5">
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40">Student</th>
@@ -347,8 +347,8 @@ function ClientManagementSection() {
         </button>
       </header>
 
-      <div className="glass-card rounded-[40px] overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="glass-card rounded-[40px] overflow-x-auto overflow-y-hidden">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="border-b border-white/5 bg-white/5">
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40">Company</th>
@@ -750,8 +750,8 @@ function InterviewManagementSection() {
         </button>
       </header>
 
-      <div className="glass-card rounded-[40px] overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="glass-card rounded-[40px] overflow-x-auto overflow-y-hidden">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="border-b border-white/5 bg-white/5">
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40">Candidate</th>
@@ -829,8 +829,8 @@ function LeadsSection() {
         <p className="mt-2 text-white/40">Inquiries and potential clients from the public website.</p>
       </header>
 
-      <div className="glass-card rounded-[40px] overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      <div className="glass-card rounded-[40px] overflow-x-auto overflow-y-hidden">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="border-b border-white/5 bg-white/5">
               <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-white/40">Lead Name</th>
