@@ -1,19 +1,36 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
-import { Calendar, Clock, ArrowRight, Loader2 } from "lucide-react";
+import { Clock, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { programService } from "../services/programService";
-import { Program } from "../types";
+import { applicationService } from "../services/applicationService";
+import { authService } from "../services/authService";
+import { Program, User } from "../types";
 
 export default function Programs() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [applying, setApplying] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const data = await programService.getActivePrograms();
+        const [data, profile] = await Promise.all([
+          programService.getActivePrograms(),
+          authService.getCurrentProfile(),
+        ]);
         setPrograms(data);
+
+        if (profile) {
+          setUser({
+            id: profile.id,
+            name: profile.full_name || profile.email || 'Student',
+            email: profile.email || '',
+            role: profile.role || 'student',
+          });
+        }
       } catch (err) {
         console.error("Error fetching programs:", err);
       } finally {
@@ -22,6 +39,32 @@ export default function Programs() {
     };
     fetchPrograms();
   }, []);
+
+  const handleApply = async (programId: string, title: string) => {
+    if (!user) {
+      setMessage('Please sign in to apply for a program.');
+      return;
+    }
+
+    if (user.role !== 'student') {
+      setMessage('Only students can apply to programs.');
+      return;
+    }
+
+    setApplying(programId);
+    setMessage(null);
+
+    try {
+      await applicationService.applyToProgram(programId, `Applying for ${title}`);
+      setMessage('Your application was submitted successfully.');
+    } catch (err: any) {
+      console.error(err);
+      setMessage(err?.message || 'Unable to submit application.');
+    } finally {
+      setApplying(null);
+    }
+  };
+
   return (
     <div className="bg-brand-dark py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -82,20 +125,39 @@ export default function Programs() {
                   {program.description}
                 </p>
                 <div className="mt-8">
-                  <Link
-                    to={program.status === "open" ? "/contact" : "#"}
-                    className={`inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-colors ${
-                      program.status === "open" ? "text-brand-green hover:text-white" : "text-white/20 cursor-not-allowed"
-                    }`}
-                  >
-                    {program.status === "open" ? "Apply Now" : "Applications Closed"}
-                    {program.status === "open" && <ArrowRight className="h-4 w-4" />}
-                  </Link>
+                  {user?.role === 'student' ? (
+                    <button
+                      type="button"
+                      onClick={() => handleApply(program.id, program.title)}
+                      disabled={program.status !== 'open' || applying === program.id}
+                      className={`inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-colors ${
+                        program.status === 'open' ? 'text-brand-green hover:text-white' : 'text-white/20 cursor-not-allowed'
+                      }`}
+                    >
+                      {program.status === 'open' ? (applying === program.id ? 'Applying...' : 'Apply Now') : 'Applications Closed'}
+                      {program.status === 'open' && <ArrowRight className="h-4 w-4" />}
+                    </button>
+                  ) : (
+                    <Link
+                      to="/contact"
+                      className={`inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-colors ${
+                        program.status === 'open' ? 'text-brand-green hover:text-white' : 'text-white/20 cursor-not-allowed'
+                      }`}
+                    >
+                      {program.status === 'open' ? 'Contact to Apply' : 'Applications Closed'}
+                      {program.status === 'open' && <ArrowRight className="h-4 w-4" />}
+                    </Link>
+                  )}
                 </div>
               </div>
             </motion.article>
           ))}
         </div>
+        {message && (
+          <div className="mt-8 rounded-3xl bg-brand-green/10 border border-brand-green/20 p-4 text-sm font-black uppercase tracking-widest text-brand-green">
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );

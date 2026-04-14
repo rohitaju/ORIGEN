@@ -1,8 +1,34 @@
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Code, Palette, Users, Rocket } from "lucide-react";
+import { Palette, Users, Rocket } from "lucide-react";
+import { programService } from "../services/programService";
+import { projectService } from "../services/projectService";
+import { Program, Project } from "../types";
 
 export default function Home() {
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const [programData, projectData] = await Promise.all([
+          programService.getActivePrograms(),
+          projectService.getProjects(),
+        ]);
+        setPrograms(programData.slice(0, 3));
+        setProjects(projectData.slice(0, 3));
+      } catch (err) {
+        console.error('Error loading home data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHomeData();
+  }, []);
+
   return (
     <div className="flex flex-col bg-brand-dark">
       {/* Hero Section */}
@@ -96,6 +122,70 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Programs + Projects Preview */}
+      <section className="py-24 sm:py-32 bg-brand-surface/5">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between mb-12">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-green mb-4">Origen Experience</p>
+              <h2 className="text-4xl font-black tracking-tight text-white sm:text-6xl uppercase leading-[0.95]">
+                Active programs and real client work
+              </h2>
+            </div>
+            <Link
+              to="/programs"
+              className="rounded-full border border-brand-green/30 bg-brand-green/10 px-8 py-3 text-xs font-black uppercase tracking-widest text-brand-green hover:bg-brand-green hover:text-brand-dark transition-all"
+            >
+              Explore programs
+            </Link>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="glass-card p-12 rounded-[40px] h-72 animate-pulse bg-white/5" />
+              <div className="glass-card p-12 rounded-[40px] h-72 animate-pulse bg-white/5" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="space-y-8">
+                <div className="rounded-[40px] bg-white/5 p-10">
+                  <h3 className="text-xl font-black uppercase text-white mb-6">Featured Programs</h3>
+                  <div className="space-y-4">
+                    {programs.map((program) => (
+                      <div key={program.id} className="rounded-3xl border border-white/5 bg-brand-dark p-6">
+                        <div className="flex items-center justify-between gap-4 mb-4">
+                          <h4 className="text-lg font-black uppercase text-white">{program.title}</h4>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-brand-green">
+                            {program.duration}
+                          </span>
+                        </div>
+                        <p className="text-sm text-white/50 mb-4 line-clamp-2">{program.description}</p>
+                        <div className="text-[10px] uppercase tracking-widest text-white/30">{program.mode || 'remote'}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-[40px] bg-white/5 p-10">
+                  <h3 className="text-xl font-black uppercase text-white mb-6">Recent Client Work</h3>
+                  <div className="space-y-4">
+                    {projects.map((project) => (
+                      <div key={project.id} className="rounded-3xl border border-white/5 bg-brand-dark p-6">
+                        <div className="flex items-center justify-between gap-4 mb-4">
+                          <h4 className="text-lg font-black uppercase text-white">{project.title}</h4>
+                          <span className="text-[10px] uppercase tracking-widest text-white/30">{project.status}</span>
+                        </div>
+                        <p className="text-sm text-white/50 line-clamp-2">{project.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

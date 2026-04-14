@@ -1,6 +1,15 @@
 import { supabase } from './supabaseClient';
 import { Application } from '../types';
 
+const mapApplication = (app: any): Application => ({
+  id: app.id,
+  programId: app.program_id,
+  studentId: app.user_id,
+  status: app.status,
+  appliedAt: app.created_at,
+  program: app.programs ?? app.program,
+});
+
 export const applicationService = {
   async applyToProgram(programId: string, motivationText?: string) {
     const { data: { session } } = await supabase.auth.getSession();
@@ -31,21 +40,13 @@ export const applicationService = {
       .eq('user_id', session.user.id);
 
     if (error) throw error;
-    // Map to frontend type
-    return data.map((app: any) => ({
-      id: app.id,
-      programId: app.program_id,
-      studentId: app.user_id,
-      status: app.status,
-      appliedAt: app.created_at,
-      program: app.programs // include program details
-    })) as Application[];
+    return (data || []).map(mapApplication) as Application[];
   },
 
   async getAllApplications() {
     const { data, error } = await supabase
       .from('applications')
-      .select('*, profiles(full_name, email), programs(title)');
+      .select('*, profiles(full_name, email), programs(title, status, image)');
 
     if (error) throw error;
     return data;

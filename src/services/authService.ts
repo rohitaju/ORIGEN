@@ -6,13 +6,23 @@ export const authService = {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return null;
 
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', session.user.id)
       .single();
 
+    if (error && error.message !== 'No rows found') {
+      throw error;
+    }
+
     return profile;
+  },
+
+  async getCurrentUser() {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return session?.user ?? null;
   },
 
   async getProfiles(role?: UserRole) {
@@ -33,6 +43,17 @@ export const authService = {
       .from('profiles')
       .update(updates)
       .eq('id', session.user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createProfile(profile: { id: string; full_name?: string; email?: string; role?: UserRole; }) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert(profile)
       .select()
       .single();
 

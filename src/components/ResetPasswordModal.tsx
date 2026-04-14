@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { supabase } from "../lib/supabase";
 import { motion } from "motion/react";
 import { Lock, Loader2 } from "lucide-react";
@@ -8,7 +8,7 @@ export default function ResetPasswordModal({ onClose }: { onClose: () => void })
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);

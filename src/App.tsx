@@ -38,17 +38,24 @@ export default function App() {
       }
       try {
         const profile = await authService.getCurrentProfile();
-        if (profile) {
-          setUser({
-            id: session.user.id,
-            name: profile.full_name || session.user.email?.split('@')[0] || "User",
-            email: profile.email || session.user.email || "",
-            role: profile.role || "student",
-          });
-        }
+        const role = profile?.role || session.user.user_metadata?.role || 'student';
+        const name = profile?.full_name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User';
+        const email = profile?.email || session.user.email || '';
+
+        setUser({
+          id: session.user.id,
+          name,
+          email,
+          role,
+        });
       } catch (err) {
         console.error("Error fetching profile", err);
-        setUser(null);
+        setUser({
+          id: session.user.id,
+          name: session.user.email?.split('@')[0] || 'User',
+          email: session.user.email || '',
+          role: session.user.user_metadata?.role || 'student'
+        });
       }
       setLoading(false);
     };

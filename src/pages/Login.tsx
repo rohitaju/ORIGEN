@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { UserRole } from "../types";
 import { supabase } from "../lib/supabase";
@@ -25,7 +25,7 @@ export default function Login({ user }: LoginProps) {
     return <Navigate to="/dashboard" />;
   }
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleAuth = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);

@@ -34,6 +34,8 @@ export interface Program {
   duration: string;
   status: "open" | "closed";
   image?: string;
+  mode?: string;
+  createdAt?: string;
 }
 
 export interface Course {
@@ -59,6 +61,7 @@ export interface Application {
   studentId: string;
   status: "pending" | "approved" | "rejected" | "selected";
   appliedAt: string;
+  program?: Program;
 }
 
 export interface JobListing {
